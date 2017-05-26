@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans   
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+            http://www.springframework.org/schema/mvc   
+            http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd   
+            http://www.springframework.org/schema/context   
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd   
+            http://www.springframework.org/schema/aop   
+            http://www.springframework.org/schema/aop/spring-aop-3.0.xsd   
+            http://www.springframework.org/schema/tx   
+            http://www.springframework.org/schema/tx/spring-tx-3.0.xsd ">  
+  
+    <!-- 扫描组件 -->  
+    <!-- <context:component-scan base-package="com.tan.test"  use-default-filters="false">
+    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="regex" expression="cn\.outofmemory\.spring\.[^.]+(Dao|Service)"/>
+	</context:component-scan>   -->
+    	
+    	<context:component-scan base-package="com.tan.test" />
+    	
+    <!-- 分解配置 jdbc.properites -->  
+    <context:property-placeholder location="classpath*:config/jdbc.properties" />  
+      
+    <!-- 数据源c3p0 -->  
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" >  
+        <property name="driverClassName">  
+            <value>${JDBC.MYSQL.DRIVERCLASSNAME}</value>  
+        </property>  
+        <property name="url">  
+            <value>${JDBC.MYSQL.SCHOOL.URL}</value>  
+        </property>  
+        <property name="username">  
+            <value>${JDBC.MYSQL.SCHOOL.USERNAME}</value>  
+        </property>  
+        <property name="password">  
+            <value>${JDBC.MYSQL.SCHOOL.PASSWORD}</value>  
+        </property>  
+        <property name="maxActive" value="2" />  
+        <property name="initialSize" value="1" />  
+        <property name="maxIdle" value="2" />  
+        <property name="minIdle" value="1" />  
+        <!-- 等待连接超时时间，30秒 -->  
+        <property name="maxWait" value="30000" />  
+    </bean>  
+  
+  	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:config/mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath*:com/tan/test/mapping/**/*.xml" />  
+    </bean> 
+    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com,tan.test.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />  
+    </bean>  
+  
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean>  
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">  
+        <tx:attributes>  
+            <tx:method name="add*" propagation="REQUIRED" />  
+            <tx:method name="append*" propagation="REQUIRED" />  
+            <tx:method name="insert*" propagation="REQUIRED" />  
+            <tx:method name="save*" propagation="REQUIRED" />  
+            <tx:method name="update*" propagation="REQUIRED" />  
+            <tx:method name="modify*" propagation="REQUIRED" />  
+            <tx:method name="edit*" propagation="REQUIRED" />  
+            <tx:method name="delete*" propagation="REQUIRED" />  
+            <tx:method name="remove*" propagation="REQUIRED" />  
+            <tx:method name="repair" propagation="REQUIRED" />  
+            <tx:method name="delAndRepair" propagation="REQUIRED" />  
+  
+            <tx:method name="get*" propagation="SUPPORTS" />  
+            <tx:method name="find*" propagation="SUPPORTS" />  
+            <tx:method name="load*" propagation="SUPPORTS" />  
+            <tx:method name="search*" propagation="SUPPORTS" />  
+            <tx:method name="datagrid*" propagation="SUPPORTS" />  
+  
+            <tx:method name="*" propagation="SUPPORTS" />  
+        </tx:attributes>  
+    </tx:advice>  
+    <aop:config>  
+        <aop:pointcut id="transactionPointcut" expression="execution(* com.tan.test.service..*Impl.*(..))" />  
+        <aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice" />  
+    </aop:config>  
+    
+    
+    <bean id="testLog" class="com.tan.test.common.MyLog"></bean> <!--将日志类注入到bean中。-->  
+      
+    <aop:config>  
+         <!-- 定义切点 -->
+         <aop:pointcut id="log" expression="execution(* com.tan.test.service.impl.*.*(..))"/><!--配置在log包下所有的类在调用之前都会被拦截-->  
+	     <!-- 定义切面 -->
+	     <aop:aspect id="b" ref="testLog"><!--调用日志类-->     
+	         <!--通知函数 method 的参数为 ProceedingJoinPoint 类型 该类型为 JoinPoint 的子类 可以通过该对象获取 被切面参数 以及 返回值-->
+            <aop:around method="aroundMethod" pointcut-ref="log"/> 
+        </aop:aspect>  
+    </aop:config>  
+</beans>   

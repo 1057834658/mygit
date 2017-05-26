@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tan.test.dao.AppManagerDao">
+	<resultMap id="appResult" type="com.tan.test.vo.AppManager">
+		<id column="id"  property="id" jdbcType="INTEGER"/>
+		<result column="name" property="name" jdbcType="VARCHAR"/>
+		<result column="iconUrl" property="iconUrl" jdbcType="VARCHAR"/>
+		<result column="version" property="version" jdbcType="VARCHAR"/>
+		<result column="appSign" property="appSign" jdbcType="VARCHAR"/>
+		<result column="detail" property="detail" jdbcType="VARCHAR"/>
+		<result column="isNow" property="isNow" jdbcType="VARCHAR"/>
+		<result column="networkType" property="networkType" jdbcType="INTEGER"/>
+		<result column="networkUrl" property="networkUrl" jdbcType="VARCHAR"/>
+		<result column="localUrl" property="localUrl" jdbcType="VARCHAR"/>
+		<result column="mobileSysType" property="mobileSysType" jdbcType="INTEGER"/>
+		<result column="verStatus" property="verStatus" jdbcType="VARCHAR"/>
+		<result column="appName" property="appName" jdbcType="VARCHAR"/>
+		<result column="createUser" property="createUser" jdbcType="INTEGER"/>
+		<result column="createDate" property="createDate" jdbcType="TIMESTAMP"/>
+		<result column="updateDate" property="updateDate" jdbcType="TIMESTAMP"/>
+	</resultMap>
+	
+	<select id="queryNewApp" parameterType="map" resultMap="appResult" >
+	SELECT id,name,iconUrl,version,appSign,detail,networkType,networkUrl,localUrl,appName,createUser,createDate,updateDate
+	FROM t_app_manage WHERE isNow='Y' and mobileSysType = #{mobileSysType,jdbcType=INTEGER}
+	</select>
+</mapper>
+
