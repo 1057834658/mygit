@@ -13,6 +13,7 @@ public class MyLog {
 	private static Logger logger = LoggerFactory.getLogger(MyLog.class);
 	public void before(JoinPoint joinPoint){  
 		System.out.println("前   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		
         //没有参数  
         if (joinPoint.getArgs() == null) {  
             return;  
